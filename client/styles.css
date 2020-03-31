@@ -6,6 +6,12 @@
   width: 50%;
   margin: 0 auto;
 }
+
 .loading {
   text-align: center;
+}
+
+.chatters {
+  width: 80%;
+  margin: 0 auto;
 }

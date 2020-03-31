@@ -1,9 +1,12 @@
 console.log("TEST");
 const form = document.querySelector('form');
 const loading = document.querySelector('.loading');
+const chattersElement = document.querySelector('.chatters');
 const API_URL = 'http://localhost:5000/chatters';
 
-loading.style.display = 'none';
+loading.style.display = '';
+
+listAllChatters();
 
 form.addEventListener('submit',(event) => {
   event.preventDefault(); //Don't go anywhere
@@ -27,6 +30,38 @@ form.addEventListener('submit',(event) => {
     }
   }).then(response => response.json())
     .then(createdChatter => {
-    console.log(createdChatter);
+      form.reset();
+      form.style.display = '';
+      listAllChatters();
+      loading.style.display = 'none';
     });
 });
+
+function listAllChatters() { //GET all chatters
+  chattersElement.innerHTML = '';
+  fetch(API_URL)
+    .then(response => response.json())
+    .then(chatters => {
+      console.log(chatters);
+      chatters.reverse();
+      chatters.forEach(chatter => {
+        const div = document.createElement('div');
+
+        const header = document.createElement('h3');
+        header.textContent = chatter.name;
+
+        const contents = document.createElement('p');
+        contents.textContent = chatter.content;
+
+        const date = document.createElement('small');
+        date.textContent = new Date(chatter.created);
+
+        div.appendChild(header);
+        div.appendChild(contents);
+        div.appendChild(date);
+
+        chattersElement.appendChild(div);
+      });
+      loading.style.display = 'none';
+    });
+}
