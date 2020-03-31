@@ -1,3 +1,4 @@
+console.log("TEST");
 const form = document.querySelector('form');
 const loading = document.querySelector('.loading');
 const API_URL = 'http://localhost:5000/chatters';
@@ -24,5 +25,8 @@ form.addEventListener('submit',(event) => {
     headers: {
       'content-type': 'application/json'
     }
-  });
+  }).then(response => response.json())
+    .then(createdChatter => {
+    console.log(createdChatter);
+    });
 });
