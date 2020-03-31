@@ -1,0 +1,11 @@
+.title {
+  text-align: center;
+}
+
+.chat-form, .loading {
+  width: 50%;
+  margin: 0 auto;
+}
+.loading {
+  text-align: center;
+}
