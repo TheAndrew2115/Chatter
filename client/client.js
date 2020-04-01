@@ -52,12 +52,15 @@ function listAllChatters() { //GET all chatters
 
         const header = document.createElement('h3');
         header.textContent = chatter.name;
+        header.className = "headers";
 
         const contents = document.createElement('p');
         contents.textContent = chatter.content;
+        contents.className = "contents";
 
         const date = document.createElement('small');
         date.textContent = new Date(chatter.created);
+        date.className = "dates";
 
         div.appendChild(header);
         div.appendChild(contents);
