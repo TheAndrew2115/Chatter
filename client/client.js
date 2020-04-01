@@ -1,9 +1,11 @@
 console.log("TEST");
+//Cors accept all
 const form = document.querySelector('form');
 const loadingE = document.querySelector('.loading');
 const loadMoreElement = document.querySelector('#loadMore');
 const chattersElement = document.querySelector('.chatters');
-const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/chatters' : 'https://chatter-api.now.sh/chatters';
+//const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/chatters' : 'https://chatter.theandrew2115.now.sh/chatters';
+const API_URL = 'http://localhost:5000/chatters';
 
 loadingE.style.display = '';
 
