@@ -1,10 +1,23 @@
 console.log("TEST");
 const form = document.querySelector('form');
-const loading = document.querySelector('.loading');
+const loadingE = document.querySelector('.loading');
+const loadMoreElement = document.querySelector('#loadMore');
 const chattersElement = document.querySelector('.chatters');
 const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/chatters' : 'https://chatter-api.now.sh/chatters';
 
-loading.style.display = '';
+loadingE.style.display = '';
+
+let skip = 0;
+let limit = 5;
+let loading = false;
+let finished = false;
+
+document.addEventListener('scroll', () => {
+  const rect = loadMoreElement.getBoundingClientRect();
+  if (rect.top < window.innerHeight && !loading && !finished) {
+    loadMore();
+  }
+});
 
 listAllChatters();
 
@@ -20,7 +33,7 @@ form.addEventListener('submit',(event) => {
   };
 
   form.style.display = 'none';
-  loading.style.display = '';
+  loadingE.style.display = '';
 
   fetch(API_URL, { //send form data to backend
     method: 'POST',
@@ -35,18 +48,27 @@ form.addEventListener('submit',(event) => {
         form.style.display='';
       }, 25000); //wait 25 seconds before displaying form again
       listAllChatters();
-      loading.style.display = 'none';
+      loadingE.style.display = 'none';
     });
 });
 
-function listAllChatters() { //GET all chatters
-  chattersElement.innerHTML = '';
-  fetch(API_URL)
+function loadMore() {
+  skip += limit;
+  listAllChatters(false);
+}
+
+function listAllChatters(reset = true) { //GET all chatters
+  loading = true;
+  if (reset) {
+    chattersElement.innerHTML = '';
+    skip = 0;
+    finished = false;
+  }
+
+  fetch(`${API_URL}?skip=${skip}&limit=${limit}`)
     .then(response => response.json())
-    .then(chatters => {
-      console.log(chatters);
-      chatters.reverse();
-      chatters.forEach(chatter => {
+    .then(result => {
+      result.chatters.forEach(chatter => {
         const div = document.createElement('div');
         div.className = "posts";
 
@@ -68,6 +90,13 @@ function listAllChatters() { //GET all chatters
 
         chattersElement.appendChild(div);
       });
-      loading.style.display = 'none';
+      loadingE.style.display = 'none';
+      if (!result.meta.has_more) {
+        loadMoreElement.style.visibility = 'hidden';
+        finished = true;
+      } else {
+        loadMoreElement.style.visibility = 'visible';
+      }
+      loading = false;
     });
 }
