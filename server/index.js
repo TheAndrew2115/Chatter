@@ -10,6 +10,8 @@ const db = monk(process.env.MONGO_URI || 'localhost/chatter');
 const chatters = db.get('chatters');
 const filter = new Filter();
 
+app.enable('trust proxy');
+
 app.use(cors());
 app.use(express.json()); //json body parser
 
@@ -19,12 +21,47 @@ app.get('/', (request, response) => {
   });
 });
 
-app.get('/chatters', (request, response) => {
-  chatters
-    .find()
-    .then(chatters => {
-      response.json(chatters);
-    });
+// app.get('/chatters', (request, response) => {
+//   chatters
+//     .find()
+//     .then(chatters => {
+//       response.json(chatters);
+//     });
+// });
+
+app.get('/chatters', (request, response, next) => {
+  // let skip = Number(req.query.skip) || 0;
+  // let limit = Number(req.query.limit) || 10;
+  let { skip = 0, limit = 5, sort = 'desc' } = request.query;
+  skip = parseInt(skip) || 0;
+  limit = parseInt(limit) || 5;
+
+  skip = skip < 0 ? 0 : skip;
+  limit = Math.min(50, Math.max(1, limit));
+
+  Promise.all([
+    chatters
+      .count(),
+    chatters
+      .find({}, {
+        skip,
+        limit,
+        sort: {
+          created: sort === 'desc' ? -1 : 1
+        }
+      })
+  ])
+    .then(([ total, chatters ]) => {
+      response.json({
+        chatters,
+        meta: {
+          total,
+          skip,
+          limit,
+          has_more: total - (skip + limit) > 0,
+        }
+      });
+    }).catch(next);
 });
 
 function isValidChatter(chatter)  {// rtype = bool
@@ -36,7 +73,7 @@ app.use(rateLimit({ //Every 25 sec, user is limited to 1 post
   max: 1
 }));
 
-app.post('/chatters', (request, response) => {
+const createChatter = (request, response, next) => {
   if (isValidChatter(request.body)) {
     const chatter = { //toString (weakily) prevents injection attacks
       name: filter.clean(request.body.name.toString()),
@@ -57,7 +94,9 @@ app.post('/chatters', (request, response) => {
       message: "Name and content are required!"
     });
   }
-});
+};
+
+app.post('/chatters', createChatter);
 
 app.listen(5000, () => {
   console.log("listening on http://localhost:5000");
