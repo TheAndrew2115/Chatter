@@ -5,7 +5,8 @@ const Filter = require('bad-words');
 const rateLimit = require('express-rate-limit');
 
 const app = express();
-const db = monk('localhost/chatter');
+
+const db = monk(process.env.MONGO_URI || 'localhost/chatter');
 const chatters = db.get('chatters');
 const filter = new Filter();
 
@@ -29,6 +30,11 @@ app.get('/chatters', (request, response) => {
 function isValidChatter(chatter)  {// rtype = bool
   return chatter.name && chatter.name.toString().trim() !== '' && chatter.content && chatter.content.toString().trim() !== '';
 }
+
+app.use(rateLimit({ //Every 25 sec, user is limited to 1 post
+  windowMs: 25 * 1000, // Only code below is affected by rateLimit
+  max: 1
+}));
 
 app.post('/chatters', (request, response) => {
   if (isValidChatter(request.body)) {

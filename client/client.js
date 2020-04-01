@@ -2,7 +2,7 @@ console.log("TEST");
 const form = document.querySelector('form');
 const loading = document.querySelector('.loading');
 const chattersElement = document.querySelector('.chatters');
-const API_URL = 'http://localhost:5000/chatters';
+const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/chatters' : 'https://chatter-api.now.sh/chatters';
 
 loading.style.display = '';
 
@@ -31,7 +31,9 @@ form.addEventListener('submit',(event) => {
   }).then(response => response.json())
     .then(createdChatter => {
       form.reset();
-      form.style.display = '';
+      setTimeout(() => {
+        form.style.display='';
+      }, 25000); //wait 25 seconds before displaying form again
       listAllChatters();
       loading.style.display = 'none';
     });
@@ -46,6 +48,7 @@ function listAllChatters() { //GET all chatters
       chatters.reverse();
       chatters.forEach(chatter => {
         const div = document.createElement('div');
+        div.className = "posts";
 
         const header = document.createElement('h3');
         header.textContent = chatter.name;

@@ -1,3 +1,7 @@
+header {
+  border-bottom: 1px solid grey;
+}
+
 .title {
   text-align: center;
 }
@@ -12,6 +16,14 @@
 }
 
 .chatters {
+
   width: 80%;
   margin: 0 auto;
+}
+
+.posts {
+  border: 1px solid #fff;
+  border-radius: 20px;
+  box-shadow:3px 3px 5px 6px #ccc;
+  margin: 30px 0px;
 }
